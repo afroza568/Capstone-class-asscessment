@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grill Restaurant - Digital Ordering System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- LEFT SIDE NAVIGATION -->
+    <aside class="sidebar">
+      <div class="brand-icon">
+        <i class="fa-solid fa-utensils"></i>
+      </div>
+      <nav class="nav-icons">
+        <button class="nav-btn active" data-view="menu" title="Food Menu">
+          <i class="fa-regular fa-compass"></i>
+        </button>
+        <button class="nav-btn" data-view="history" title="Order History">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+        </button>
+        <button class="nav-btn" data-view="tracking" title="Live Order Tracking">
+          <i class="fa-solid fa-location-crosshairs"></i>
+        </button>
+        <button class="nav-btn" data-view="admin" title="Admin & Orders Management">
+          <i class="fa-solid fa-sliders"></i>
+        </button>
+        <button class="nav-btn" data-view="report" title="Daily Sales Report">
+          <i class="fa-solid fa-chart-pie"></i>
+        </button>
+      </nav>
+      <div class="sidebar-bottom">
+        <button class="nav-btn" id="theme-toggle" title="Settings">
+          <i class="fa-solid fa-gear"></i>
+        </button>
+      </div>
+    </aside>
+
+    <!-- CENTER MAIN VIEW (MENU) -->
+    <main class="main-content" id="main-view-container">
+      <!-- HEADER -->
+      <header class="top-header">
+        <div class="header-left">
+          <div class="date-badge" id="current-date">June 15, 2023</div>
+          <h1 class="restaurant-name">Grill Restaurant</h1>
+        </div>
+
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="search-input" placeholder="Search Here" autocomplete="off">
+          <button id="clear-search-btn" class="clear-btn" style="display: none;">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <div class="header-right">
+          <button class="filter-btn" id="filter-popular-btn" title="Filter Popular Items">
+            <i class="fa-solid fa-fire"></i>
+            <span>Popular</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- VIEW: FOOD MENU -->
+      <section class="view-panel active" id="view-menu">
+        <div class="section-title-row">
+          <div>
+            <h2 class="section-title">Find The Best Food</h2>
+            <p class="section-subtitle">Select from our chef-crafted gourmet menu</p>
+          </div>
+          <button class="view-all-btn" id="reset-filter-btn">View All</button>
+        </div>
+
+        <!-- CATEGORY PILLS -->
+        <div class="categories-container" id="categories-bar">
+          <!-- Dynamic categories -->
+        </div>
+
+        <!-- BONUS CHALLENGE: SMART RECOMMENDATIONS BANNER -->
+        <div class="recommendations-box" id="recommendations-box" style="display: none;">
+          <div class="rec-header">
+            <div class="rec-title">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+              <span id="rec-reason">Recommended for You</span>
+            </div>
+            <span class="badge-bonus">Bonus Feature</span>
+          </div>
+          <div class="rec-items-row" id="rec-items-row">
+            <!-- Complementary / Recommended items -->
+          </div>
+        </div>
+
+        <!-- FOOD MENU GRID -->
+        <div class="food-grid" id="food-grid">
+          <!-- Food cards populated by JavaScript -->
+        </div>
+      </section>
+
+      <!-- VIEW: ORDER HISTORY -->
+      <section class="view-panel" id="view-history">
+        <div class="section-title-row">
+          <div>
+            <h2 class="section-title">Customer Order History</h2>
+            <p class="section-subtitle">Review all placed customer orders and receipts</p>
+          </div>
+          <button class="btn-secondary" onclick="loadOrderHistory()">
+            <i class="fa-solid fa-rotate"></i> Refresh
+          </button>
+        </div>
+        <div class="orders-table-wrapper">
+          <table class="styled-table" id="orders-history-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Type</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Date & Time</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="orders-history-body">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- VIEW: LIVE TRACKING -->
+      <section class="view-panel" id="view-tracking">
+        <div class="section-title-row">
+          <div>
+            <h2 class="section-title">Live Order Tracking</h2>
+            <p class="section-subtitle">Follow your food's preparation and delivery status in real-time</p>
+          </div>
+        </div>
+        <div class="tracking-search-bar">
+          <input type="text" id="track-id-input" placeholder="Enter Order ID (e.g. ORD-1001)">
+          <button class="btn-primary" onclick="trackOrderFromInput()">Track Order</button>
+        </div>
+        <div class="tracking-card" id="tracking-card-container">
+          <div class="empty-state">
+            <i class="fa-solid fa-map-location-dot"></i>
+            <p>Enter an Order ID above or place an order to see live status updates.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW: ADMIN FOOD & ORDER MANAGEMENT -->
+      <section class="view-panel" id="view-admin">
+        <div class="section-title-row">
+          <div>
+            <h2 class="section-title">Restaurant Management</h2>
+            <p class="section-subtitle">Manage menu dishes, update live order statuses, and pricing</p>
+          </div>
+          <button class="btn-primary" onclick="openAddDishModal()">
+            <i class="fa-solid fa-plus"></i> Add New Dish
+          </button>
+        </div>
+
+        <div class="admin-tabs">
+          <button class="tab-btn active" onclick="switchAdminTab('menu-mgmt', this)">Menu Dishes Management</button>
+          <button class="tab-btn" onclick="switchAdminTab('status-mgmt', this)">Order Status Management</button>
+        </div>
+
+        <div class="admin-tab-content active" id="tab-menu-mgmt">
+          <div class="admin-grid" id="admin-food-grid">
+            <!-- Admin menu item cards -->
+          </div>
+        </div>
+
+        <div class="admin-tab-content" id="tab-status-mgmt">
+          <div class="orders-table-wrapper">
+            <table class="styled-table">
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Customer</th>
+                  <th>Order Type</th>
+                  <th>Items Summary</th>
+                  <th>Total Amount</th>
+                  <th>Current Status</th>
+                  <th>Update Status</th>
+                </tr>
+              </thead>
+              <tbody id="admin-orders-body">
+                <!-- Admin orders for status update -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW: DAILY SALES REPORT -->
+      <section class="view-panel" id="view-report">
+        <div class="section-title-row">
+          <div>
+            <h2 class="section-title">Daily Sales & Analytics</h2>
+            <p class="section-subtitle">Financial metrics, order volume, and top food performers</p>
+          </div>
+          <button class="btn-secondary" onclick="loadSalesReport()">
+            <i class="fa-solid fa-rotate"></i> Refresh Report
+          </button>
+        </div>
+
+        <div class="stats-cards-grid" id="sales-metrics">
+          <div class="stat-card">
+            <div class="stat-icon bg-blue"><i class="fa-solid fa-receipt"></i></div>
+            <div class="stat-info">
+              <span class="stat-label">Today's Orders</span>
+              <h3 class="stat-value" id="stat-orders-today">0</h3>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon bg-green"><i class="fa-solid fa-dollar-sign"></i></div>
+            <div class="stat-info">
+              <span class="stat-label">Today's Revenue</span>
+              <h3 class="stat-value" id="stat-revenue-today">$0.00</h3>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon bg-purple"><i class="fa-solid fa-vault"></i></div>
+            <div class="stat-info">
+              <span class="stat-label">All-Time Revenue</span>
+              <h3 class="stat-value" id="stat-revenue-all">$0.00</h3>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon bg-orange"><i class="fa-solid fa-boxes-stacked"></i></div>
+            <div class="stat-info">
+              <span class="stat-label">Total Orders Handled</span>
+              <h3 class="stat-value" id="stat-orders-all">0</h3>
+            </div>
+          </div>
+        </div>
+
+        <div class="report-split-grid">
+          <div class="report-box">
+            <h3><i class="fa-solid fa-ranking-star"></i> Top Selling Food Items</h3>
+            <ul class="top-items-list" id="top-items-list">
+              <!-- Top selling items -->
+            </ul>
+          </div>
+          <div class="report-box">
+            <h3><i class="fa-solid fa-chart-column"></i> Order Types & Payment Methods</h3>
+            <div class="breakdown-list" id="report-breakdowns">
+              <!-- Breakdown stats -->
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- RIGHT SIDEBAR: MY ORDER CART (Exact layout from photo) -->
+    <aside class="order-sidebar">
+      <div class="order-header">
+        <h2 class="order-title">My Order</h2>
+        <div class="order-header-icon" title="Scan receipt or view QR">
+          <i class="fa-solid fa-qrcode"></i>
+        </div>
+      </div>
+
+      <!-- Order Type Buttons (Dine In, Pick Up, Delivery) -->
+      <div class="order-type-tabs">
+        <button class="order-type-btn active" data-type="Dine In">Dine In</button>
+        <button class="order-type-btn" data-type="Pick Up">Pick Up</button>
+        <button class="order-type-btn" data-type="Delivery">Delivery</button>
+      </div>
+
+      <!-- Customer Name / Table Number -->
+      <div class="customer-info-row">
+        <input type="text" id="customer-name-input" placeholder="Customer Name / Table No." value="Table 4">
+      </div>
+
+      <!-- CART ITEMS LIST -->
+      <div class="cart-items-container" id="cart-items-list">
+        <div class="empty-cart-message">
+          <i class="fa-solid fa-basket-shopping"></i>
+          <p>Your order is empty.<br>Choose delicious dishes from the menu!</p>
+        </div>
+      </div>
+
+      <!-- ORDER SUMMARY & CHECKOUT -->
+      <div class="order-summary-panel">
+        <!-- Coupon input -->
+        <div class="coupon-section">
+          <div class="coupon-input-wrap">
+            <input type="text" id="coupon-code-input" placeholder="Coupon: WELCOME, SAVE10" uppercase>
+            <button id="apply-coupon-btn" onclick="applyCouponCode()">Apply</button>
+          </div>
+          <div id="coupon-feedback" class="coupon-feedback"></div>
+        </div>
+
+        <!-- Bill breakdown -->
+        <div class="summary-line">
+          <span>Items</span>
+          <span id="summary-subtotal">$0.00</span>
+        </div>
+        <div class="summary-line discount" id="summary-discount-row" style="display: none;">
+          <span>Discount <small id="applied-coupon-tag"></small></span>
+          <span id="summary-discount">-$0.00</span>
+        </div>
+        <div class="summary-line total">
+          <span>Total Amount</span>
+          <span id="summary-total">$0.00</span>
+        </div>
+
+        <!-- Payments Selector -->
+        <div class="payments-title">Payments</div>
+        <div class="payment-methods">
+          <button class="payment-btn active" data-payment="Cash">Cash</button>
+          <button class="payment-btn" data-payment="Debit/Card">Debit</button>
+          <button class="payment-btn" data-payment="E-Wallet">E-Wallet</button>
+        </div>
+
+        <!-- Checkout Button -->
+        <button class="checkout-btn" id="checkout-btn" onclick="checkoutOrder()">
+          <span>Checkout</span>
+        </button>
+      </div>
+    </aside>
+  </div>
+
+  <!-- MODAL: ADD / EDIT DISH -->
+  <div class="modal-overlay" id="dish-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="modal-dish-title">Add New Food Item</h3>
+        <button class="close-modal-btn" onclick="closeDishModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="dish-form" onsubmit="handleDishSubmit(event)">
+        <input type="hidden" id="dish-id">
+        <div class="form-group">
+          <label>Food Item Name</label>
+          <input type="text" id="dish-name" required placeholder="e.g. Truffle Mushroom Pizza">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Category</label>
+            <select id="dish-category" required>
+              <option value="Pizza">Pizza</option>
+              <option value="Fast Food">Fast Food</option>
+              <option value="Noodle">Noodle</option>
+              <option value="Desert">Desert</option>
+              <option value="Sea Food">Sea Food</option>
+              <option value="Sushi">Sushi</option>
+              <option value="Ramen">Ramen</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Price ($)</label>
+            <input type="number" id="dish-price" step="0.01" min="0.5" required placeholder="50.00">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="dish-desc" rows="2" placeholder="With Onion, cheese, Olives And many more.."></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Image URL (Optional)</label>
+            <input type="url" id="dish-image" placeholder="https://images.unsplash.com/...">
+          </div>
+          <div class="form-group">
+            <label>Rating (1.0 - 5.0)</label>
+            <input type="number" id="dish-rating" step="0.1" min="1.0" max="5.0" value="5.0">
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" onclick="closeDishModal()">Cancel</button>
+          <button type="submit" class="btn-primary">Save Food Item</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ORDER SUCCESS MODAL -->
+  <div class="modal-overlay" id="success-modal">
+    <div class="modal-box text-center">
+      <div class="success-icon-wrap">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <h3 class="success-heading">Order Placed Successfully!</h3>
+      <p class="success-text">Your order has been recorded in the JSON database.</p>
+      <div class="order-id-badge" id="success-order-id">ORD-1003</div>
+      <p class="success-details" id="success-order-summary"></p>
+      <div class="modal-actions-center">
+        <button class="btn-primary" onclick="trackCreatedOrder()">Track Live Order</button>
+        <button class="btn-secondary" onclick="closeSuccessModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATIONS -->
+  <div id="toast" class="toast"></div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
